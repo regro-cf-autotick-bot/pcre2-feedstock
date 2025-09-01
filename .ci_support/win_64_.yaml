@@ -1,7 +1,7 @@
 bzip2:
 - '1'
 c_compiler:
-- vs2019
+- vs2022
 c_stdlib:
 - vs
 channel_sources:
@@ -9,7 +9,7 @@ channel_sources:
 channel_targets:
 - conda-forge main
 pcre2:
-- '10.44'
+- '10.45'
 re2:
 - 2024.07.02
 target_platform:
