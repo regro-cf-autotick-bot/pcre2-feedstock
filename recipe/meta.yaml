@@ -54,6 +54,15 @@ outputs:
         - zlib
 
     test:
+      requires:
+        # cmake needs a compiler to run package detection, see
+        # https://discourse.cmake.org/t/questions-about-find-package-cli-msvc/6194
+        - {{ compiler('c') }}
+        - cmake
+        - ninja
+        - pkg-config
+      source_files:
+        - maint/cmake-tests/install-interface/
       commands:
         - pcre2test --version
         - pcre2grep --version
@@ -104,6 +113,11 @@ outputs:
         - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config-version.cmake exit 1   # [win]
         - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets.cmake exit 1          # [win]
         - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets-release.cmake exit 1  # [win]
+
+        - cd maint/cmake-tests/install-interface
+        - cmake -GNinja $CMAKE_ARGS .   # [unix]
+        - cmake -GNinja %CMAKE_ARGS% .  # [win]
+        - cmake --build .
 
   - name: pcre2-static
     script: build-static.sh  # [unix]
