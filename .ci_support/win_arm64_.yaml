@@ -9,7 +9,7 @@ channel_sources:
 channel_targets:
 - conda-forge main
 pcre2:
-- '10.45'
+- '10.46'
 re2:
 - 2025.08.12
 target_platform:

@@ -9,6 +9,8 @@ Package license: BSD-3-Clause
 
 Summary: Regular expression pattern matching using Perl 5 syntax and semantics.
 
+Development: https://github.com/PCRE2Project/pcre2
+
 Documentation: http://www.pcre.org/current/doc/html/
 
 The PCRE library is a set of functions that implement regular expression pattern matching
