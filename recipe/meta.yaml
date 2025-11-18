@@ -22,22 +22,11 @@ build:
     # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
     - {{ pin_subpackage("pcre2", max_pin="x.x") }}
 
-requirements:
-  build:
-    - {{ compiler('c') }}
-    - {{ stdlib("c") }}
-    - cmake
-    - ninja
-    - posix  # [win]
-    - m2-sed  # [win]
-  host:
-    - bzip2
-    - zlib
 
 outputs:
   - name: pcre2
-    script: build-shared.sh  # [unix]
-    script: bld-shared.bat  # [win]
+    script: build-lib.sh    # [unix]
+    script: build-lib.bat   # [win]
     build:
       run_exports:
         # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
@@ -48,7 +37,8 @@ outputs:
         - {{ stdlib("c") }}
         - cmake
         - ninja
-        - posix  # [win]
+        - posix     # [win]
+        - m2-sed    # [win]
       host:
         - bzip2
         - zlib
@@ -120,12 +110,21 @@ outputs:
         - cmake --build .
 
   - name: pcre2-static
-    script: build-static.sh  # [unix]
-    script: bld-static.bat  # [win]
+    script: build-lib.sh    # [unix]
+    script: build-lib.bat   # [win]
+    build:
+      # we need to clobber the CMake metadata from pcre
+      always_include_files:
+        - lib/cmake/pcre2/          # [unix]
+        - Library/lib/cmake/pcre2/  # [win]
     requirements:
       build:
         - {{ compiler('c') }}
         - {{ stdlib("c") }}
+        - cmake
+        - ninja
+        - posix     # [win]
+        - m2-sed    # [win]
       host:
         - bzip2
         - zlib
@@ -133,6 +132,15 @@ outputs:
       run:
         - {{ pin_subpackage('pcre2', exact=True) }}
     test:
+      requires:
+        # cmake needs a compiler to run package detection, see
+        # https://discourse.cmake.org/t/questions-about-find-package-cli-msvc/6194
+        - {{ compiler('c') }}
+        - cmake
+        - ninja
+        - pkg-config
+      source_files:
+        - maint/cmake-tests/install-interface/
       commands:
         - test -f $PREFIX/lib/libpcre2-8.a                             # [unix]
         - test -f $PREFIX/lib/libpcre2-16.a                            # [unix]
@@ -142,6 +150,11 @@ outputs:
         - if not exist %LIBRARY_LIB%\pcre2-16-static.lib exit 1        # [win]
         - if not exist %LIBRARY_LIB%\pcre2-32-static.lib exit 1        # [win]
         - if not exist %LIBRARY_LIB%\pcre2-posix-static.lib exit 1     # [win]
+
+        - cd maint/cmake-tests/install-interface
+        - cmake -GNinja $CMAKE_ARGS .   # [unix]
+        - cmake -GNinja %CMAKE_ARGS% .  # [win]
+        - cmake --build .
 
 about:
   home: http://www.pcre.org/
