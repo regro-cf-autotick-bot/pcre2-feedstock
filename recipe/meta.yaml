@@ -83,6 +83,8 @@ outputs:
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-posix.pc                        # [not win]
         - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-config.cmake                     # [not win]
         - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-config-version.cmake             # [not win]
+        - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-targets.cmake                    # [not win]
+        - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-targets-release.cmake            # [not win]
 
         - if not exist %LIBRARY_INC%\\pcre2.h exit 1                               # [win]
         - if not exist %LIBRARY_INC%\\pcre2posix.h exit 1                          # [win]
@@ -98,8 +100,10 @@ outputs:
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-8.pc exit 1              # [win]
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-16.pc exit 1             # [win]
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-32.pc exit 1             # [win]
-        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config.cmake exit 1          # [win]
-        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config-version.cmake exit 1  # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config.cmake exit 1           # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config-version.cmake exit 1   # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets.cmake exit 1          # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets-release.cmake exit 1  # [win]
 
   - name: pcre2-static
     script: build-static.sh  # [unix]
