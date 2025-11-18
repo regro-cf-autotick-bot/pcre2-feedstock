@@ -133,6 +133,7 @@ about:
     wrapper functions that correspond to the POSIX regular expression API. The PCRE library is
     free, even for building proprietary software.
   doc_url: http://www.pcre.org/current/doc/html/
+  dev_url: https://github.com/PCRE2Project/pcre2
 
 extra:
   feedstock-name: pcre2
