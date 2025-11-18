@@ -1,8 +1,12 @@
-{% set name = "pcre2-split-recipe" %}
 {% set version = "10.47" %}
 
+{% set sover_posix = "3.0.7" %}
+{% set sover_posix_major = sover_posix.split(".")[0] %}
+{% set sover = "0.15.0" %}
+{% set sover_major = sover.split(".")[0] %}
+
 package:
-  name: {{ name }}
+  name: pcre2-split-recipe
   version: {{ version }}
 
 source:
@@ -58,21 +62,21 @@ outputs:
         - test -f ${PREFIX}/include/pcre2.h                                        # [not win]
         - test -f ${PREFIX}/include/pcre2posix.h                                   # [not win]
         - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}                         # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-posix.3${SHLIB_EXT}                       # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3                       # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3.0.6                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-posix.{{ sover_posix_major }}.dylib       # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-posix.so.{{ sover_posix_major }}          # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-posix.so.{{ sover_posix }}                # [linux]
         - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}                             # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-8.0${SHLIB_EXT}                           # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0                           # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0.14.0                      # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-8.{{ sover_major }}.dylib                 # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.{{ sover_major }}           # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.{{ sover }}                 # [linux]
         - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}                            # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-16.0${SHLIB_EXT}                          # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0                          # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0.14.0                     # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-16.{{ sover_major }}.dylib                # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-16.so.{{ sover_major }}                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-16.so.{{ sover }}                         # [linux]
         - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}                            # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-32.0${SHLIB_EXT}                          # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0                          # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0.14.0                     # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-32.{{ sover_major }}.dylib                # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-32.so.{{ sover_major }}                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-32.so.{{ sover }}                         # [linux]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-8.pc                            # [not win]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-16.pc                           # [not win]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-32.pc                           # [not win]
