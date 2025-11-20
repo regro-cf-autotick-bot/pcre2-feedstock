@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -ex
 
 # Not only does this hopefully make pcre2 faster,
 # it fixes a test failure on macOS. See link below.
@@ -19,11 +20,19 @@ else
     CMAKE_ARGS="${CMAKE_ARGS} -DPCRE2_SUPPORT_JIT=ON"
 fi
 
+if [[ "${PKG_NAME}" == "pcre2" ]]; then
+    # first without static libs...
+    export CF_BUILD_STATIC_LIBS=OFF
+else
+    # ... then with
+    export CF_BUILD_STATIC_LIBS=ON
+fi
+
 mkdir build_cmake
 pushd build_cmake
 cmake ${CMAKE_ARGS} \
     -DBUILD_SHARED_LIBS=ON \
-    -DBUILD_STATIC_LIBS=ON \
+    -DBUILD_STATIC_LIBS=$CF_BUILD_STATIC_LIBS \
     -DCMAKE_BUILD_TYPE=release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_INSTALL_PREFIX=$PREFIX \
@@ -32,7 +41,12 @@ cmake ${CMAKE_ARGS} \
     -GNinja \
     ..
 
-ninja
+cmake --build .
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   ctest --rerun-failed --output-on-failure
 fi
+
+cmake --install .
+
+popd
+rm -rf build_cmake

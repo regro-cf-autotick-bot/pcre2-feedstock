@@ -1,15 +1,19 @@
-{% set name = "pcre2-split-recipe" %}
-{% set version = "10.46" %}
+{% set version = "10.47" %}
+
+{% set sover_posix = "3.0.7" %}
+{% set sover_posix_major = sover_posix.split(".")[0] %}
+{% set sover = "0.15.0" %}
+{% set sover_major = sover.split(".")[0] %}
 
 package:
-  name: {{ name }}
+  name: pcre2-split-recipe
   version: {{ version }}
 
 source:
   - url: https://github.com/PCRE2Project/pcre2/archive/refs/tags/pcre2-{{ version }}.tar.gz
-    sha256: ffde0c6ead457c4f8edcd8f9ce490bbabd30adabdfd179ecaddd320946cf3872
-  - url: https://github.com/zherczeg/sljit/archive/e51eabbfb8eabc6526f56e4e88b29fb10d1ee048.tar.gz
-    sha256: 5caf31959f4c2dfa9fdbaf290b0e16538527d929d5c1c5bd1a3e6df01436c1cf
+    sha256: 409c443549b13b216da40049850a32f3e6c57d4224ab11553ab5a786878a158e
+  - url: https://github.com/zherczeg/sljit/archive/45f910b78c6605ebf5b53d3ec7cb00f2312fe417.tar.gz
+    sha256: ea5a6fb45e050f813f070ecaa098fe0389068beea61ac7dce5410a0c642ccfa3
     folder: deps/sljit
 
 build:
@@ -18,22 +22,11 @@ build:
     # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
     - {{ pin_subpackage("pcre2", max_pin="x.x") }}
 
-requirements:
-  build:
-    - {{ compiler('c') }}
-    - {{ stdlib("c") }}
-    - cmake
-    - ninja
-    - posix  # [win]
-    - m2-sed  # [win]
-  host:
-    - bzip2
-    - zlib
 
 outputs:
   - name: pcre2
-    script: build-shared.sh  # [unix]
-    script: bld-shared.bat  # [win]
+    script: build-lib.sh    # [unix]
+    script: build-lib.bat   # [win]
     build:
       run_exports:
         # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
@@ -44,12 +37,22 @@ outputs:
         - {{ stdlib("c") }}
         - cmake
         - ninja
-        - posix  # [win]
+        - posix     # [win]
+        - m2-sed    # [win]
       host:
         - bzip2
         - zlib
 
     test:
+      requires:
+        # cmake needs a compiler to run package detection, see
+        # https://discourse.cmake.org/t/questions-about-find-package-cli-msvc/6194
+        - {{ compiler('c') }}
+        - cmake
+        - ninja
+        - pkg-config
+      source_files:
+        - maint/cmake-tests/install-interface/
       commands:
         - pcre2test --version
         - pcre2grep --version
@@ -58,27 +61,29 @@ outputs:
         - test -f ${PREFIX}/include/pcre2.h                                        # [not win]
         - test -f ${PREFIX}/include/pcre2posix.h                                   # [not win]
         - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}                         # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-posix.3${SHLIB_EXT}                       # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3                       # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3.0.6                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-posix.{{ sover_posix_major }}.dylib       # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-posix.so.{{ sover_posix_major }}          # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-posix.so.{{ sover_posix }}                # [linux]
         - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}                             # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-8.0${SHLIB_EXT}                           # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0                           # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0.14.0                      # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-8.{{ sover_major }}.dylib                 # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.{{ sover_major }}           # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.{{ sover }}                 # [linux]
         - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}                            # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-16.0${SHLIB_EXT}                          # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0                          # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0.14.0                     # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-16.{{ sover_major }}.dylib                # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-16.so.{{ sover_major }}                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-16.so.{{ sover }}                         # [linux]
         - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}                            # [not win]
-        - test -f ${PREFIX}/lib/libpcre2-32.0${SHLIB_EXT}                          # [osx]
-        - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0                          # [linux]
-        - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0.14.0                     # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-32.{{ sover_major }}.dylib                # [osx]
+        - test -f ${PREFIX}/lib/libpcre2-32.so.{{ sover_major }}                   # [linux]
+        - test -f ${PREFIX}/lib/libpcre2-32.so.{{ sover }}                         # [linux]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-8.pc                            # [not win]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-16.pc                           # [not win]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-32.pc                           # [not win]
         - test -f ${PREFIX}/lib/pkgconfig/libpcre2-posix.pc                        # [not win]
         - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-config.cmake                     # [not win]
         - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-config-version.cmake             # [not win]
+        - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-targets.cmake                    # [not win]
+        - test -f ${PREFIX}/lib/cmake/pcre2/pcre2-targets-release.cmake            # [not win]
 
         - if not exist %LIBRARY_INC%\\pcre2.h exit 1                               # [win]
         - if not exist %LIBRARY_INC%\\pcre2posix.h exit 1                          # [win]
@@ -94,16 +99,32 @@ outputs:
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-8.pc exit 1              # [win]
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-16.pc exit 1             # [win]
         - if not exist %LIBRARY_LIB%\\pkgconfig\\libpcre2-32.pc exit 1             # [win]
-        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config.cmake exit 1          # [win]
-        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config-version.cmake exit 1  # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config.cmake exit 1           # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-config-version.cmake exit 1   # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets.cmake exit 1          # [win]
+        - if not exist %LIBRARY_PREFIX%\\lib\\cmake\\pcre2\\pcre2-targets-release.cmake exit 1  # [win]
+
+        - cd maint/cmake-tests/install-interface
+        - cmake -GNinja $CMAKE_ARGS .   # [unix]
+        - cmake -GNinja %CMAKE_ARGS% .  # [win]
+        - cmake --build .
 
   - name: pcre2-static
-    script: build-static.sh  # [unix]
-    script: bld-static.bat  # [win]
+    script: build-lib.sh    # [unix]
+    script: build-lib.bat   # [win]
+    build:
+      # we need to clobber the CMake metadata from pcre
+      always_include_files:
+        - lib/cmake/pcre2/          # [unix]
+        - Library/lib/cmake/pcre2/  # [win]
     requirements:
       build:
         - {{ compiler('c') }}
         - {{ stdlib("c") }}
+        - cmake
+        - ninja
+        - posix     # [win]
+        - m2-sed    # [win]
       host:
         - bzip2
         - zlib
@@ -111,6 +132,15 @@ outputs:
       run:
         - {{ pin_subpackage('pcre2', exact=True) }}
     test:
+      requires:
+        # cmake needs a compiler to run package detection, see
+        # https://discourse.cmake.org/t/questions-about-find-package-cli-msvc/6194
+        - {{ compiler('c') }}
+        - cmake
+        - ninja
+        - pkg-config
+      source_files:
+        - maint/cmake-tests/install-interface/
       commands:
         - test -f $PREFIX/lib/libpcre2-8.a                             # [unix]
         - test -f $PREFIX/lib/libpcre2-16.a                            # [unix]
@@ -120,6 +150,11 @@ outputs:
         - if not exist %LIBRARY_LIB%\pcre2-16-static.lib exit 1        # [win]
         - if not exist %LIBRARY_LIB%\pcre2-32-static.lib exit 1        # [win]
         - if not exist %LIBRARY_LIB%\pcre2-posix-static.lib exit 1     # [win]
+
+        - cd maint/cmake-tests/install-interface
+        - cmake -GNinja $CMAKE_ARGS .   # [unix]
+        - cmake -GNinja %CMAKE_ARGS% .  # [win]
+        - cmake --build .
 
 about:
   home: http://www.pcre.org/
@@ -133,6 +168,7 @@ about:
     wrapper functions that correspond to the POSIX regular expression API. The PCRE library is
     free, even for building proprietary software.
   doc_url: http://www.pcre.org/current/doc/html/
+  dev_url: https://github.com/PCRE2Project/pcre2
 
 extra:
   feedstock-name: pcre2
