@@ -17,7 +17,7 @@ source:
     folder: deps/sljit
 
 build:
-  number: 0
+  number: 1
   run_exports:
     # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
     - {{ pin_subpackage("pcre2", max_pin="x.x") }}
