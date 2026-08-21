@@ -7,7 +7,7 @@
 
 package:
   name: pcre2-split-recipe
-  version: {{ version }}
+  version: "{{ version }}"
 
 source:
   - url: https://github.com/PCRE2Project/pcre2/archive/refs/tags/pcre2-{{ version }}.tar.gz
@@ -17,7 +17,7 @@ source:
     folder: deps/sljit
 
 build:
-  number: 0
+  number: 1
   run_exports:
     # https://abi-laboratory.pro/index.php?view=timeline&l=pcre2
     - {{ pin_subpackage("pcre2", max_pin="x.x") }}
@@ -37,7 +37,7 @@ outputs:
         - {{ stdlib("c") }}
         - cmake
         - ninja
-        - posix     # [win]
+        - m2-base   # [win]
         - m2-sed    # [win]
       host:
         - bzip2
@@ -123,7 +123,7 @@ outputs:
         - {{ stdlib("c") }}
         - cmake
         - ninja
-        - posix     # [win]
+        - m2-base   # [win]
         - m2-sed    # [win]
       host:
         - bzip2
